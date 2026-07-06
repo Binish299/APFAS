@@ -1,0 +1,412 @@
+/* Import Modern premium typography */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600&display=swap');
+
+:root {
+  /* Color System - Premium HSL Tokens */
+  --bg-primary: #0a0b10;
+  --bg-secondary: #12131a;
+  --bg-tertiary: #191a24;
+  
+  --accent-blue: hsl(210, 100%, 60%);
+  --accent-purple: hsl(265, 85%, 65%);
+  --accent-indigo: hsl(230, 85%, 60%);
+  
+  /* Status Color Tokens */
+  --color-excellent: hsl(150, 80%, 45%);
+  --color-good: hsl(190, 80%, 45%);
+  --color-average: hsl(38, 90%, 55%);
+  --color-needs-improvement: hsl(355, 85%, 55%);
+  
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  
+  /* Glassmorphism settings */
+  --glass-bg: rgba(25, 26, 36, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-shadow: rgba(0, 0, 0, 0.3);
+  
+  --font-main: 'Outfit', sans-serif;
+  --font-code: 'Space Grotesk', sans-serif;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  line-height: 1.5;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.06) 0%, transparent 45%);
+  background-attachment: fixed;
+}
+
+/* ========================================================
+   Glassmorphic Container Classes
+   ======================================================== */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px 0 var(--glass-shadow);
+  padding: 24px;
+  transition: var(--transition-smooth);
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+}
+
+.interactive-card {
+  cursor: pointer;
+}
+
+.interactive-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ========================================================
+   Header & Navigation
+   ======================================================== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 40px;
+  background: rgba(10, 11, 16, 0.8);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: var(--font-code);
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+}
+
+.nav-item {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.nav-item:hover, .nav-item.active {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ========================================================
+   Typography & Buttons
+   ======================================================== */
+h1, h2, h3, h4 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.gradient-title {
+  background: linear-gradient(135deg, #ffffff 30%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 24px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-indigo) 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--color-needs-improvement) 0%, #dc2626 100%);
+  color: white;
+}
+
+.btn-danger:hover {
+  opacity: 0.95;
+}
+
+/* ========================================================
+   Gauges & Score Meters
+   ======================================================== */
+.score-circle {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: 0 auto 16px auto;
+  background: radial-gradient(circle, var(--bg-tertiary) 60%, transparent 100%);
+  box-shadow: inset 0 0 15px rgba(255,255,255,0.02);
+}
+
+.score-circle-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.03);
+  stroke-width: 10;
+}
+
+.circle-progress {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s ease-out;
+}
+
+.circle-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  font-family: var(--font-code);
+}
+
+/* ========================================================
+   Audio Recording Interface Styles
+   ======================================================== */
+.recorder-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--glass-border);
+  margin: 20px 0;
+}
+
+.mic-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-indigo) 100%);
+  color: white;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.35);
+  border: none;
+  transition: var(--transition-smooth);
+}
+
+.mic-btn:hover {
+  transform: scale(1.05);
+}
+
+.mic-btn.recording {
+  background: var(--color-needs-improvement);
+  animation: pulse-recording 1.5s infinite;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+}
+
+@keyframes pulse-recording {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.soundwave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 40px;
+  margin-top: 16px;
+}
+
+.wave-bar {
+  width: 4px;
+  height: 10px;
+  background: var(--accent-blue);
+  border-radius: 2px;
+  transition: var(--transition-smooth);
+}
+
+.mic-btn.recording ~ .soundwave .wave-bar {
+  animation: wave-bounce 1s ease-in-out infinite;
+}
+
+.soundwave .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+.soundwave .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+.soundwave .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+.soundwave .wave-bar:nth-child(5) { animation-delay: 0.6s; }
+
+@keyframes wave-bounce {
+  0%, 100% { height: 8px; }
+  50% { height: 35px; }
+}
+
+/* ========================================================
+   Form control styles
+   ======================================================== */
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.form-input {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  color: white;
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
+}
+
+/* ========================================================
+   Status / Accent category tags
+   ======================================================== */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge-excellent {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-excellent);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-good {
+  background: rgba(6, 182, 212, 0.1);
+  color: var(--color-good);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+.badge-average {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-average);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-poor {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-needs-improvement);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* ========================================================
+   Grid Layout utilities
+   ======================================================== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  padding: 30px 40px;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+}
+
+.grid-cols-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+}
