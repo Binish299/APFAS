@@ -46,7 +46,8 @@ export const TopicSpeaking = ({ navigateTo }) => {
       setResult(res.data);
     } catch (err) {
       console.error("Analysis pipeline error: ", err);
-      setErrorMsg("Failed to evaluate topic recording. Make sure audio format is correct.");
+      const detail = err.response?.data?.detail || err.message;
+      setErrorMsg(`Analysis failed (${err.response?.status || 'network'}): ${detail}`);
     } finally {
       setIsProcessing(false);
     }

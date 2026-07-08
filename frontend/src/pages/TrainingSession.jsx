@@ -47,7 +47,8 @@ export const TrainingSession = ({ navigateTo }) => {
       setResult(res.data);
     } catch (err) {
       console.error("Analysis pipeline error: ", err);
-      setErrorMsg("Failed to complete pronunciation analysis. Please try again.");
+      const detail = err.response?.data?.detail || err.message;
+      setErrorMsg(`Analysis failed (${err.response?.status || 'network'}): ${detail}`);
     } finally {
       setIsProcessing(false);
     }
