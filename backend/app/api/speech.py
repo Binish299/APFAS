@@ -42,6 +42,7 @@ AUDIO_MAGIC_BYTES = {
     b"\xff\xf2": "mp3",
     b"\x49\x44\x33": "mp3 (ID3)",
     b"fLaC": "flac",
+    b"\x1a\x45\xdf\xa3": "webm/ebml",
 }
 
 def validate_audio_file(audio_file: UploadFile):

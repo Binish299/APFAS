@@ -21,16 +21,19 @@ export const SkeletonBar = ({ width = '100%', height = '16px', style = {} }) => 
   </>
 );
 
-export const SkeletonPanel = ({ height = '200px', style = {} }) => (
-  <div className="glass-panel" style={{ padding: '24px', ...style }}>
-    <style>{shimmer}</style>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <div style={{ ...skeletonStyle, width: '40%', height: '20px' }} />
-      <div style={{ ...skeletonStyle, width: '100%', height: height - 80 }} />
-      <div style={{ ...skeletonStyle, width: '60%', height: '14px' }} />
+export const SkeletonPanel = ({ height = '200px', style = {} }) => {
+  const parsed = parseInt(String(height), 10) || 200;
+  return (
+    <div className="glass-panel" style={{ padding: '24px', ...style }}>
+      <style>{shimmer}</style>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ ...skeletonStyle, width: '40%', height: '20px' }} />
+        <div style={{ ...skeletonStyle, width: '100%', height: Math.max(parsed - 80, 40) }} />
+        <div style={{ ...skeletonStyle, width: '60%', height: '14px' }} />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const SkeletonCard = () => (
   <>
