@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { User, Mail, Lock, AlertCircle, Sparkles } from 'lucide-react';
+import api from '../api';
 
 export const Login = ({ onLoginSuccess }) => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -22,7 +22,7 @@ export const Login = ({ onLoginSuccess }) => {
     const endpoint = isRegistering ? "register" : "login";
 
     try {
-      const res = await axios.post(`http://localhost:8000/api/auth/${endpoint}`, payload);
+      const res = await api.post(`/auth/${endpoint}`, payload);
       // Pass logged-in session data back to main App wrapper
       if (onLoginSuccess) {
         onLoginSuccess(res.data);

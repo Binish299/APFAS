@@ -56,14 +56,14 @@ class SessionService:
         
         return session
 
-    def get_user_history(self, user_id: int, query: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Fetch chronological list of session logs with keyword filters."""
-        sessions = self.session_repo.get_sessions_by_user(user_id, query)
+    def get_user_history(self, user_id: int, query: Optional[str] = None,
+                         skip: int = 0, limit: int = 20) -> List[Dict[str, Any]]:
+        """Fetch chronological list of session logs with keyword filters and pagination."""
+        sessions = self.session_repo.get_sessions_by_user(user_id, query, skip=skip, limit=limit)
         history_list = []
 
         for s in sessions:
             for rec in s.recordings:
-                # Compile unified flat dictionary for front-end consumption
                 record_data = {
                     "session_id": s.id,
                     "session_type": s.session_type,
@@ -95,3 +95,7 @@ class SessionService:
                 history_list.append(record_data)
 
         return history_list
+
+    def get_user_history_count(self, user_id: int, query: Optional[str] = None) -> int:
+        """Return total session count for pagination calculation."""
+        return self.session_repo.count_sessions_by_user(user_id, query)

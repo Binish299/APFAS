@@ -110,19 +110,15 @@ class FeedbackService:
 
     def aggregate_metrics(self, word_error_rate: float, character_error_rate: float, 
                           accent_issues: List[AccentIssue], audio_features: AudioFeatures,
-                          word_count: int, target_text: Optional[str] = None) -> MetricBreakdown:
+                          word_count: int, target_text: Optional[str] = None,
+                          recognized_text: Optional[str] = None) -> MetricBreakdown:
         """Calculate and combine individual sub-scores to yield the weighted overall final score."""
         
         pron = self.compute_pronunciation_score(word_error_rate, character_error_rate, accent_issues)
         fluency = self.compute_fluency_score(audio_features.silence_duration, audio_features.duration)
         sp_rate = self.compute_speaking_rate_score(word_count, audio_features.duration)
         confidence = self.compute_confidence_score(audio_features.silence_duration, audio_features.duration, audio_features.pitch_variance)
-        vocab = self.compute_vocabulary_richness_score(recognized_text="", target_text=target_text) # Will evaluate properly
-        
-        # Handle vocabulary properly for spontaneous text
-        if not target_text:
-            vocab = self.compute_vocabulary_richness_score(recognized_text=target_text or "") # Uses mock word calculations or text input
-        
+        vocab = self.compute_vocabulary_richness_score(recognized_text or "", target_text)
         clarity = self.compute_clarity_score(audio_features.pitch_mean, audio_features.energy)
 
         # Apply weights to find final score

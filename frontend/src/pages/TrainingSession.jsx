@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { AudioRecorder } from '../components/AudioRecorder';
 import { MetricMeter, ScoreBar } from '../components/MetricMeter';
 import { ArrowLeft, Sparkles, BookOpen, AlertCircle, Award } from 'lucide-react';
+import api from '../api';
 
 const DRILLS = [
   {
@@ -27,7 +27,7 @@ const DRILLS = [
   }
 ];
 
-export const TrainingSession = ({ userId, navigateTo }) => {
+export const TrainingSession = ({ navigateTo }) => {
   const [selectedDrill, setSelectedDrill] = useState(DRILLS[0]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState(null);
@@ -41,14 +41,9 @@ export const TrainingSession = ({ userId, navigateTo }) => {
     const formData = new FormData();
     formData.append("audio_file", audioBlob, "recording.wav");
     formData.append("target_text", selectedDrill.sentence);
-    formData.append("user_id", userId);
 
     try {
-      const res = await axios.post("http://localhost:8000/api/speech/evaluate-pronunciation", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const res = await api.post("/speech/evaluate-pronunciation", formData);
       setResult(res.data);
     } catch (err) {
       console.error("Analysis pipeline error: ", err);

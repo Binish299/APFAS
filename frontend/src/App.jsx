@@ -4,19 +4,26 @@ import { TrainingSession } from './pages/TrainingSession';
 import { TopicSpeaking } from './pages/TopicSpeaking';
 import { SessionHistory } from './pages/SessionHistory';
 import { Login } from './pages/Login';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { OfflineBanner } from './components/OfflineBanner';
 import { Sparkles, LayoutDashboard, Volume2, HelpCircle, History, LogOut } from 'lucide-react';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('nepalish_user');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
+    localStorage.setItem('nepalish_user', JSON.stringify(userData));
     setCurrentPage('dashboard');
   };
 
   const handleLogout = () => {
     setUser(null);
+    localStorage.removeItem('nepalish_user');
     setCurrentPage('dashboard');
   };
 
@@ -34,83 +41,92 @@ function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)' }}>
-      {/* Global Glassmorphic Premium Navbar */}
-      <nav className="navbar">
+    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-primary)' }}>
+      {/* Left Sidebar */}
+      <aside className="sidebar">
         <div 
-          className="brand" 
+          className="sidebar-brand" 
           onClick={() => setCurrentPage('dashboard')}
-          style={{ cursor: 'pointer' }}
         >
-          <Sparkles size={24} style={{ color: 'var(--accent-blue)' }} /> NEPALISH COACH
+          <Sparkles size={22} style={{ color: 'var(--accent-blue)' }} />
+          <span>NEPALISH COACH</span>
         </div>
 
-        <div className="nav-links">
+        <div className="sidebar-user">
+          <div className="sidebar-avatar">
+            {user.username.charAt(0).toUpperCase()}
+          </div>
+          <div className="sidebar-user-info">
+            <span className="sidebar-username">{user.username}</span>
+            <span className="sidebar-streak">🔥 3 Day Streak</span>
+          </div>
+        </div>
+
+        <nav className="sidebar-nav" aria-label="Main navigation">
           <button 
             onClick={() => setCurrentPage('dashboard')} 
-            className={`nav-item ${currentPage === 'dashboard' ? 'active' : ''}`}
-            style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            className={`sidebar-item ${currentPage === 'dashboard' ? 'active' : ''}`}
+            aria-current={currentPage === 'dashboard' ? 'page' : undefined}
           >
-            <LayoutDashboard size={16} /> Dashboard
+            <LayoutDashboard size={18} />
+            <span>Dashboard</span>
           </button>
           
           <button 
             onClick={() => setCurrentPage('drill')} 
-            className={`nav-item ${currentPage === 'drill' ? 'active' : ''}`}
-            style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            className={`sidebar-item ${currentPage === 'drill' ? 'active' : ''}`}
+            aria-current={currentPage === 'drill' ? 'page' : undefined}
           >
-            <Volume2 size={16} /> Pronunciation Drills
+            <Volume2 size={18} />
+            <span>Pronunciation Drills</span>
           </button>
           
           <button 
             onClick={() => setCurrentPage('topic')} 
-            className={`nav-item ${currentPage === 'topic' ? 'active' : ''}`}
-            style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            className={`sidebar-item ${currentPage === 'topic' ? 'active' : ''}`}
+            aria-current={currentPage === 'topic' ? 'page' : undefined}
           >
-            <HelpCircle size={16} /> Spontaneous Topics
+            <HelpCircle size={18} />
+            <span>Spontaneous Topics</span>
           </button>
           
           <button 
             onClick={() => setCurrentPage('history')} 
-            className={`nav-item ${currentPage === 'history' ? 'active' : ''}`}
-            style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            className={`sidebar-item ${currentPage === 'history' ? 'active' : ''}`}
+            aria-current={currentPage === 'history' ? 'page' : undefined}
           >
-            <History size={16} /> Session History
+            <History size={18} />
+            <span>Session History</span>
           </button>
-        </div>
+        </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'white' }}>
-              Hi, {user.username}
-            </span>
-            <p style={{ fontSize: '0.7rem', color: 'var(--color-excellent)' }}>🔥 3 Day Active Streak</p>
-          </div>
-          <button 
-            onClick={handleLogout}
-            className="btn btn-secondary"
-            style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <LogOut size={14} /> Exit
+        <div className="sidebar-footer">
+          <button onClick={handleLogout} className="sidebar-logout">
+            <LogOut size={16} /> Sign Out
           </button>
         </div>
-      </nav>
+      </aside>
 
       {/* Main Content Area */}
-      <main style={{ flex: 1, background: 'transparent' }}>
-        {currentPage === 'dashboard' && (
-          <Dashboard userId={user.id} navigateTo={setCurrentPage} />
-        )}
-        {currentPage === 'drill' && (
-          <TrainingSession userId={user.id} navigateTo={setCurrentPage} />
-        )}
-        {currentPage === 'topic' && (
-          <TopicSpeaking userId={user.id} navigateTo={setCurrentPage} />
-        )}
-        {currentPage === 'history' && (
-          <SessionHistory userId={user.id} />
-        )}
-      </main>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <OfflineBanner />
+        <main style={{ flex: 1, background: 'transparent', overflowY: 'auto' }}>
+          <ErrorBoundary>
+            {currentPage === 'dashboard' && (
+              <Dashboard navigateTo={setCurrentPage} />
+            )}
+            {currentPage === 'drill' && (
+              <TrainingSession navigateTo={setCurrentPage} />
+            )}
+            {currentPage === 'topic' && (
+              <TopicSpeaking navigateTo={setCurrentPage} />
+            )}
+            {currentPage === 'history' && (
+              <SessionHistory />
+            )}
+          </ErrorBoundary>
+        </main>
+      </div>
     </div>
   );
 }

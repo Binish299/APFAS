@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { ProgressChart } from '../components/ProgressChart';
 import { MetricMeter } from '../components/MetricMeter';
+import { SkeletonPanel, SkeletonBar } from '../components/Skeleton';
 import { BarChart3, AlertTriangle, BookOpen, Clock, Play } from 'lucide-react';
+import api from '../api';
 
-export const Dashboard = ({ userId, navigateTo }) => {
+export const Dashboard = ({ navigateTo }) => {
   const [stats, setStats] = useState({
     total_sessions: 0,
     average_score: 0,
@@ -17,11 +18,11 @@ export const Dashboard = ({ userId, navigateTo }) => {
 
   useEffect(() => {
     fetchDashboardStats();
-  }, [userId]);
+  }, []);
 
   const fetchDashboardStats = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/api/analytics/summary?user_id=${userId}`);
+      const res = await api.get("/analytics/summary");
       setStats(res.data);
     } catch (err) {
       console.error("Failed to load dashboard metrics: ", err);
@@ -29,6 +30,26 @@ export const Dashboard = ({ userId, navigateTo }) => {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div style={{ padding: '30px 40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '32px' }}>
+          <SkeletonBar width="300px" height="36px" />
+          <SkeletonBar width="160px" height="40px" />
+        </div>
+        <div className="grid-cols-3" style={{ marginBottom: '30px' }}>
+          <SkeletonPanel height="100px" />
+          <SkeletonPanel height="100px" />
+          <SkeletonPanel height="100px" />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: '30px' }}>
+          <SkeletonPanel height="320px" />
+          <SkeletonPanel height="320px" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '30px 40px' }}>

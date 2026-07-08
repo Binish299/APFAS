@@ -1,33 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Search, ChevronDown, ChevronUp, Download, Calendar, HelpCircle, FileText } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, ChevronDown, ChevronUp, Calendar, FileText, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import api from '../api';
+import { SkeletonCard } from '../components/Skeleton';
 
-export const SessionHistory = ({ userId }) => {
+const PAGE_SIZE = 10;
+
+export const SessionHistory = () => {
   const [history, setHistory] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState(null);
   const [reportText, setReportText] = useState(null);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const fetchHistory = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ skip: page * PAGE_SIZE, limit: PAGE_SIZE });
+      if (searchQuery) params.set('query', searchQuery);
+      const res = await api.get(`/analytics/history?${params}`);
+      setHistory(res.data);
+      const countRes = await api.get(`/analytics/history/count${searchQuery ? `?query=${encodeURIComponent(searchQuery)}` : ''}`);
+      setTotalCount(countRes.data.total);
+    } catch (err) {
+      console.error("Failed to load sessions logs: ", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchQuery, page]);
 
   useEffect(() => {
     fetchHistory();
-  }, [userId, searchQuery]);
+  }, [fetchHistory]);
 
-  const fetchHistory = async () => {
-    try {
-      const url = `http://localhost:8000/api/analytics/history?user_id=${userId}${searchQuery ? `&query=${encodeURIComponent(searchQuery)}` : ''}`;
-      const res = await axios.get(url);
-      setHistory(res.data);
-    } catch (err) {
-      console.error("Failed to load sessions logs: ", err);
-    }
-  };
+  useEffect(() => {
+    setPage(0);
+  }, [searchQuery]);
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const generateReport = async () => {
     setIsGeneratingReport(true);
     setReportText(null);
     try {
-      const res = await axios.get(`http://localhost:8000/api/analytics/download-report?user_id=${userId}`);
+      const res = await api.get("/analytics/download-report");
       setReportText(res.data.report_content);
     } catch (err) {
       console.error("Error generating weekly performance report: ", err);
@@ -103,6 +121,7 @@ export const SessionHistory = ({ userId }) => {
           <input 
             type="text" 
             placeholder="Search matching transcripts, sentences, or speech prompts..." 
+            aria-label="Search session history"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
@@ -119,7 +138,9 @@ export const SessionHistory = ({ userId }) => {
 
         {/* Chronological sessions listing */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {history.length === 0 ? (
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
+          ) : history.length === 0 ? (
             <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-secondary)' }}>
               No matching practice logs found in your local database.
             </div>
@@ -209,7 +230,6 @@ export const SessionHistory = ({ userId }) => {
                         </div>
                       </div>
 
-                      {/* Display targeted corrective accent feedback loops */}
                       {session.feedback && session.feedback.length > 0 && (
                         <div style={{ marginTop: '20px' }}>
                           <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-average)', marginBottom: '10px' }}>
@@ -243,6 +263,31 @@ export const SessionHistory = ({ userId }) => {
             })
           )}
         </div>
+
+        {/* Pagination controls */}
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', marginTop: '20px' }}>
+            <button
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="btn btn-secondary"
+              style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '6px', opacity: page === 0 ? 0.5 : 1 }}
+            >
+              <ChevronLeft size={16} /> Previous
+            </button>
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-code)' }}>
+              Page {page + 1} of {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+              disabled={page >= totalPages - 1}
+              className="btn btn-secondary"
+              style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '6px', opacity: page >= totalPages - 1 ? 0.5 : 1 }}
+            >
+              Next <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
 
       </div>
     </div>

@@ -1,4 +1,6 @@
+import re
 from typing import List, Optional
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from backend.app.domain.models import UserDB, PracticeSessionDB, RecordingDB, ScoreDB, AccentFeedbackDB
 
@@ -41,15 +43,36 @@ class SessionRepository:
             self.db.refresh(session)
         return session
 
-    def get_sessions_by_user(self, user_id: int, query: Optional[str] = None) -> List[PracticeSessionDB]:
+    @staticmethod
+    def _escape_like(pattern: str) -> str:
+        """Escape SQL LIKE wildcards from user input to prevent unexpected matches."""
+        escaped = re.sub(r'[%_\\]', r'\\\g<0>', pattern)
+        return f"%{escaped}%"
+
+    def get_sessions_by_user(self, user_id: int, query: Optional[str] = None,
+                              skip: int = 0, limit: int = 20) -> List[PracticeSessionDB]:
         db_query = self.db.query(PracticeSessionDB).filter(PracticeSessionDB.user_id == user_id)
         if query:
-            # Join with recordings to search transcripts or target texts
+            pattern = self._escape_like(query)
             db_query = db_query.join(RecordingDB).filter(
-                (RecordingDB.target_text.like(f"%{query}%")) | 
-                (RecordingDB.recognized_text.like(f"%{query}%"))
+                or_(
+                    RecordingDB.target_text.like(pattern),
+                    RecordingDB.recognized_text.like(pattern)
+                )
             )
-        return db_query.order_by(PracticeSessionDB.created_at.desc()).all()
+        return db_query.order_by(PracticeSessionDB.created_at.desc()).offset(skip).limit(limit).all()
+
+    def count_sessions_by_user(self, user_id: int, query: Optional[str] = None) -> int:
+        db_query = self.db.query(PracticeSessionDB).filter(PracticeSessionDB.user_id == user_id)
+        if query:
+            pattern = self._escape_like(query)
+            db_query = db_query.join(RecordingDB).filter(
+                or_(
+                    RecordingDB.target_text.like(pattern),
+                    RecordingDB.recognized_text.like(pattern)
+                )
+            )
+        return db_query.count()
 
     def get_session_details(self, session_id: int) -> Optional[PracticeSessionDB]:
         return self.db.query(PracticeSessionDB).filter(PracticeSessionDB.id == session_id).first()

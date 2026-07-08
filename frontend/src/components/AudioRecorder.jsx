@@ -110,6 +110,7 @@ export const AudioRecorder = ({ onRecordComplete, isProcessing }) => {
           disabled={isProcessing}
           className={`mic-btn ${isRecording ? 'recording' : ''}`}
           title={isRecording ? 'Stop Recording' : 'Start Recording'}
+          aria-label={isRecording ? 'Stop recording' : 'Start recording'}
         >
           {isRecording ? <Square size={26} fill="white" /> : <Mic size={28} />}
         </button>

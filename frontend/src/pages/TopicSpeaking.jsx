@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { TopicCard } from '../components/TopicCard';
 import { AudioRecorder } from '../components/AudioRecorder';
 import { MetricMeter, ScoreBar } from '../components/MetricMeter';
+import { SkeletonCard } from '../components/Skeleton';
 import { ArrowLeft, Sparkles, BookOpen, AlertCircle, Award, Compass, Timer } from 'lucide-react';
+import api from '../api';
 
-export const TopicSpeaking = ({ userId, navigateTo }) => {
+export const TopicSpeaking = ({ navigateTo }) => {
   const [topics, setTopics] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [durationLimit, setDurationLimit] = useState(60); // Default 1 min (60 seconds)
@@ -19,7 +20,7 @@ export const TopicSpeaking = ({ userId, navigateTo }) => {
 
   const fetchTopics = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/topics/list");
+      const res = await api.get("/topics/list");
       setTopics(res.data);
       if (res.data.length > 0) {
         setSelectedTopic(res.data[0]);
@@ -37,16 +38,11 @@ export const TopicSpeaking = ({ userId, navigateTo }) => {
 
     const formData = new FormData();
     formData.append("audio_file", audioBlob, "topic_recording.wav");
-    formData.append("user_id", userId);
     formData.append("topic_id", selectedTopic.id);
     formData.append("duration_limit_seconds", durationLimit);
 
     try {
-      const res = await axios.post("http://localhost:8000/api/speech/evaluate-topic", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const res = await api.post("/speech/evaluate-topic", formData);
       setResult(res.data);
     } catch (err) {
       console.error("Analysis pipeline error: ", err);
@@ -76,18 +72,22 @@ export const TopicSpeaking = ({ userId, navigateTo }) => {
             </h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', maxHeight: '420px', overflowY: 'auto', paddingRight: '4px' }}>
-              {topics.map((t) => (
-                <TopicCard 
-                  key={t.id}
-                  topicData={t}
-                  isActive={selectedTopic?.id === t.id}
-                  onSelect={() => {
-                    setSelectedTopic(t);
-                    setResult(null);
-                    setErrorMsg(null);
-                  }}
-                />
-              ))}
+              {topics.length === 0 ? (
+                Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
+              ) : (
+                topics.map((t) => (
+                  <TopicCard 
+                    key={t.id}
+                    topicData={t}
+                    isActive={selectedTopic?.id === t.id}
+                    onSelect={() => {
+                      setSelectedTopic(t);
+                      setResult(null);
+                      setErrorMsg(null);
+                    }}
+                  />
+                ))
+              )}
             </div>
           </div>
 
