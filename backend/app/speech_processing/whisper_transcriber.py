@@ -43,5 +43,10 @@ class LocalWhisperTranscriber(ISpeechTranscriber):
             }
         except TranscriptionError:
             raise
+        except FileNotFoundError as e:
+            raise TranscriptionError(
+                "Whisper transcription failed because ffmpeg is not installed. "
+                "Install it from https://ffmpeg.org/download.html or run: winget install FFmpeg"
+            ) from e
         except Exception as e:
             raise TranscriptionError(f"Whisper transcription failed: {e}") from e
