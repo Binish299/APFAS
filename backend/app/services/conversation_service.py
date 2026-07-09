@@ -27,9 +27,13 @@ SYSTEM_PROMPT = (
 
 
 def build_prompt(history: List[Dict], latest_text: str, error_context: Optional[str] = None) -> List[Dict]:
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    for msg in history[-10:]:  # last 10 turns
-        messages.append(msg)
+    messages = []
+    if not history:
+        messages.append({"role": "user", "content": f"System instruction: {SYSTEM_PROMPT}\n\nAcknowledge with 'Ready!' and nothing else."})
+        messages.append({"role": "assistant", "content": "Ready!"})
+    else:
+        for msg in history[-10:]:
+            messages.append(msg)
     user_msg = latest_text
     if error_context:
         user_msg += f"\n\n[Pronunciation notes: {error_context}]"
@@ -48,10 +52,10 @@ def send_to_ollama(messages: List[Dict]) -> str:
         "model": OLLAMA_MODEL,
         "messages": messages,
         "stream": False,
-        "options": {"temperature": 0.7},
+        "options": {"temperature": 0.7, "thinking": False},
     }
     try:
-        resp = httpx.post(url, json=payload, timeout=60)
+        resp = httpx.post(url, json=payload, timeout=180)
         resp.raise_for_status()
         data = resp.json()
         return data["message"]["content"]

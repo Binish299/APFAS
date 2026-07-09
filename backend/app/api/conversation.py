@@ -15,7 +15,7 @@ from backend.app.services.conversation_service import send_to_ollama, build_prom
 
 router = APIRouter(prefix="/conversation", tags=["Live Conversation"])
 
-transcriber = LocalWhisperTranscriber(model_size="base")
+transcriber = LocalWhisperTranscriber(model_size="tiny")
 
 AUDIO_STORE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "audio_store")
 os.makedirs(AUDIO_STORE_DIR, exist_ok=True)

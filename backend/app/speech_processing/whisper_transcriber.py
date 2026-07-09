@@ -1,9 +1,15 @@
 import os
 import re
 import logging
+import warnings
 import numpy as np
 from typing import Dict, Any, Optional
 from backend.app.domain.interfaces import ISpeechTranscriber
+
+warnings.filterwarnings("ignore", message="PySoundFile failed.*")
+warnings.filterwarnings("ignore", message="librosa.core.audio.__audioread_load.*")
+warnings.filterwarnings("ignore", message="You are using `torch.load` with `weights_only=False`.*")
+warnings.filterwarnings("ignore", message="Performing inference on CPU when CUDA is available")
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +33,13 @@ def _ensure_ffmpeg_on_path():
                 os.environ["PATH"] = candidate + os.pathsep + os.environ.get("PATH", "")
                 logger.info("Found ffmpeg at %s and added to PATH.", exe)
             return True
-    return False
+    # Fallback: check if ffmpeg is on the system PATH
+    import subprocess
+    try:
+        subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True)
+        return True
+    except (subprocess.SubprocessError, FileNotFoundError):
+        return False
 
 
 def estimate_audio_energy(audio_path: str) -> float:
@@ -68,7 +80,9 @@ class LocalWhisperTranscriber(ISpeechTranscriber):
         logger.info("Initializing local OpenAI Whisper model (%s)...", self.model_size)
         try:
             import whisper
-            self.model = whisper.load_model(self.model_size, device="cpu")
+            import torch
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            self.model = whisper.load_model(self.model_size, device=device)
             self._initialized = True
             logger.info("Local Whisper model initialized successfully.")
         except Exception as e:
