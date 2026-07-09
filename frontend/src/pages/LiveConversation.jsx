@@ -1,32 +1,26 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Volume2, Mic, Square, Sparkles, Loader2, RefreshCw, ChevronDown } from 'lucide-react';
-import api from '../api';
+import { Volume2, Mic, Square, Sparkles, Loader2, RefreshCw, VolumeX } from 'lucide-react';
+import api, { API_BASE } from '../api';
 
 export const LiveConversation = () => {
   const [messages, setMessages] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [speakingMsgId, setSpeakingMsgId] = useState(null);
+  const [playingMsgId, setPlayingMsgId] = useState(null);
   const [voices, setVoices] = useState([]);
-  const [selectedVoice, setSelectedVoice] = useState('');
+  const [selectedVoice, setSelectedVoice] = useState('en-US-JennyNeural');
   const chatEndRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const streamRef = useRef(null);
+  const audioRef = useRef(null);
+  const autoPlayedRef = useRef(new Set());
 
   useEffect(() => {
-    if ('speechSynthesis' in window) {
-      const loadVoices = () => {
-        const v = window.speechSynthesis.getVoices().filter(x => x.lang.startsWith('en'));
-        setVoices(v);
-        if (!selectedVoice && v.length > 0) {
-          setSelectedVoice(v[0].name);
-        }
-      };
-      loadVoices();
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-    }
+    api.get("/conversation/voices").then(res => {
+      setVoices(res.data);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -38,8 +32,30 @@ export const LiveConversation = () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(t => t.stop());
       }
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
   }, []);
+
+  const stopPlayback = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setPlayingMsgId(null);
+  }, []);
+
+  const playAudio = useCallback((msgId, audioUrl) => {
+    stopPlayback();
+    const audio = new Audio(`${API_BASE}${audioUrl}&voice=${selectedVoice}`);
+    audioRef.current = audio;
+    audio.onended = () => setPlayingMsgId(null);
+    audio.onerror = () => setPlayingMsgId(null);
+    setPlayingMsgId(msgId);
+    audio.play().catch(() => setPlayingMsgId(null));
+  }, [selectedVoice, stopPlayback]);
 
   const startRecording = useCallback(async () => {
     audioChunksRef.current = [];
@@ -74,38 +90,6 @@ export const LiveConversation = () => {
     }
   }, [isRecording]);
 
-  const stopSpeaking = useCallback(() => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-    setSpeakingMsgId(null);
-  }, []);
-
-  const speakText = useCallback((msgId, text) => {
-    if (!('speechSynthesis' in window)) return;
-    if (speakingMsgId === msgId) {
-      stopSpeaking();
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.85;
-    if (selectedVoice) {
-      const match = voices.find(v => v.name === selectedVoice);
-      if (match) utterance.voice = match;
-    }
-    utterance.onend = () => setSpeakingMsgId(null);
-    utterance.onerror = (e) => {
-      if (e.error !== 'canceled' && e.error !== 'interrupted') {
-        console.warn('TTS error:', e.error);
-      }
-      setSpeakingMsgId(null);
-    };
-    setSpeakingMsgId(msgId);
-    window.speechSynthesis.speak(utterance);
-  }, [speakingMsgId, stopSpeaking, selectedVoice, voices]);
-
   const sendToConversation = async (audioBlob) => {
     setIsProcessing(true);
     setErrorMsg(null);
@@ -121,10 +105,11 @@ export const LiveConversation = () => {
 
     try {
       const res = await api.post("/conversation/send", formData);
+      const assistantId = Date.now() + 1;
       setMessages(prev => [
         ...prev,
         { role: 'user', text: res.data.user_text, id: Date.now() },
-        { role: 'assistant', text: res.data.assistant_text, id: Date.now() + 1 }
+        { role: 'assistant', text: res.data.assistant_text, id: assistantId, audioUrl: res.data.assistant_audio_url }
       ]);
     } catch (err) {
       const detail = err.response?.data?.detail || err.message;
@@ -135,8 +120,24 @@ export const LiveConversation = () => {
     }
   };
 
+  useEffect(() => {
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg && lastMsg.role === 'assistant' && lastMsg.audioUrl && !autoPlayedRef.current.has(lastMsg.id)) {
+      autoPlayedRef.current.add(lastMsg.id);
+      stopPlayback();
+      const audio = new Audio(`${API_BASE}${lastMsg.audioUrl}&voice=${selectedVoice}`);
+      audioRef.current = audio;
+      audio.onended = () => setPlayingMsgId(null);
+      audio.onerror = () => setPlayingMsgId(null);
+      setPlayingMsgId(lastMsg.id);
+      audio.play().catch(() => setPlayingMsgId(null));
+    }
+  }, [messages, selectedVoice, stopPlayback]);
+
   const clearChat = () => {
+    stopPlayback();
     setMessages([]);
+    autoPlayedRef.current = new Set();
     setErrorMsg(null);
   };
 
@@ -171,7 +172,7 @@ export const LiveConversation = () => {
               title="TTS Voice"
             >
               {voices.map(v => (
-                <option key={v.name} value={v.name}>{v.name.replace(/[\s-].*/, '')}</option>
+                <option key={v} value={v}>{v.replace(/^en-/, '').replace(/Neural$/, '')}</option>
               ))}
             </select>
           )}
@@ -183,7 +184,6 @@ export const LiveConversation = () => {
         </div>
       </div>
 
-      {/* Chat area */}
       <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '16px', paddingRight: '8px' }}>
         {messages.length === 0 && !isProcessing && (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', textAlign: 'center' }}>
@@ -214,13 +214,13 @@ export const LiveConversation = () => {
               wordBreak: 'break-word',
             }}>
               <p style={{ margin: 0 }}>{msg.text}</p>
-              {msg.role === 'assistant' && (
+              {msg.role === 'assistant' && msg.audioUrl && (
                 <button
-                  onClick={() => speakText(msg.id, msg.text)}
-                  title={speakingMsgId === msg.id ? 'Stop' : 'Listen'}
+                  onClick={() => playingMsgId === msg.id ? stopPlayback() : playAudio(msg.id, msg.audioUrl)}
+                  title={playingMsgId === msg.id ? 'Stop' : 'Listen'}
                   style={{
                     marginTop: '8px',
-                    background: speakingMsgId === msg.id ? 'rgba(194,77,77,0.1)' : 'rgba(15,68,77,0.08)',
+                    background: playingMsgId === msg.id ? 'rgba(194,77,77,0.1)' : 'rgba(15,68,77,0.08)',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '4px 10px',
@@ -229,10 +229,11 @@ export const LiveConversation = () => {
                     alignItems: 'center',
                     gap: '4px',
                     fontSize: '0.75rem',
-                    color: speakingMsgId === msg.id ? 'var(--color-needs-improvement)' : 'var(--accent-blue)',
+                    color: playingMsgId === msg.id ? 'var(--color-needs-improvement)' : 'var(--accent-blue)',
                   }}
                 >
-                  <Volume2 size={14} /> {speakingMsgId === msg.id ? 'Stop' : 'Listen'}
+                  {playingMsgId === msg.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                  {playingMsgId === msg.id ? 'Stop' : 'Listen'}
                 </button>
               )}
             </div>
@@ -260,7 +261,6 @@ export const LiveConversation = () => {
         <div ref={chatEndRef} />
       </div>
 
-      {/* Recording controls */}
       <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '16px 0', borderTop: '1px solid var(--glass-border)' }}>
         <button
           onClick={isRecording ? stopRecording : startRecording}

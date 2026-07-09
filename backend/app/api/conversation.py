@@ -1,9 +1,11 @@
 import os
+import io
 import shutil
 import uuid
 import asyncio
-from typing import List
-from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
+from typing import List, Optional
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status, Query
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from backend.app.api.dependencies import get_current_user
@@ -12,6 +14,18 @@ from backend.app.speech_processing.whisper_transcriber import LocalWhisperTransc
 from backend.app.speech_processing.acoustic_features import LibrosaAcousticAnalyzer
 from backend.app.speech_processing.accent_diagnostics import NepaliAccentDiagnostic
 from backend.app.services.conversation_service import send_to_ollama, build_prompt, OllamaError
+
+TTS_VOICES = [
+    "en-US-JennyNeural",
+    "en-US-AriaNeural",
+    "en-US-ChristopherNeural",
+    "en-US-EricNeural",
+    "en-US-GuyNeural",
+    "en-GB-SoniaNeural",
+    "en-GB-RyanNeural",
+    "en-AU-NatashaNeural",
+    "en-IN-NeerjaNeural",
+]
 
 router = APIRouter(prefix="/conversation", tags=["Live Conversation"])
 
@@ -46,6 +60,7 @@ class ChatMessage(BaseModel):
 class ChatResponse(BaseModel):
     user_text: str
     assistant_text: str
+    assistant_audio_url: Optional[str] = None
 
 
 def validate_audio_file(audio_file: UploadFile):
@@ -74,6 +89,29 @@ def validate_audio_file(audio_file: UploadFile):
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail=f"Audio file too large ({content_length} bytes). Maximum allowed: {MAX_FILE_SIZE_BYTES} bytes (25 MB)."
         )
+
+
+@router.get("/voices")
+async def list_voices():
+    return TTS_VOICES
+
+
+@router.get("/tts")
+async def text_to_speech(
+    text: str = Query(..., description="Text to synthesize"),
+    voice: str = Query("en-US-JennyNeural", description="Edge TTS voice name"),
+):
+    import edge_tts
+    try:
+        communicate = edge_tts.Communicate(text, voice)
+        audio_stream = io.BytesIO()
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                audio_stream.write(chunk["data"])
+        audio_stream.seek(0)
+        return StreamingResponse(audio_stream, media_type="audio/mpeg")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"TTS failed: {str(e)}")
 
 
 @router.post(
@@ -134,7 +172,9 @@ async def conversation_send(
             timeout=120
         )
 
-        return ChatResponse(user_text=recognized_text, assistant_text=assistant_text)
+        import urllib.parse
+        audio_url = f"/conversation/tts?text={urllib.parse.quote(assistant_text)}"
+        return ChatResponse(user_text=recognized_text, assistant_text=assistant_text, assistant_audio_url=audio_url)
 
     except OllamaError as e:
         raise HTTPException(status_code=503, detail=str(e))
