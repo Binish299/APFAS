@@ -1,8 +1,28 @@
+import os
 import logging
 from typing import Dict, Any, Optional
 from backend.app.domain.interfaces import ISpeechTranscriber
 
 logger = logging.getLogger(__name__)
+
+FFMPEG_CANDIDATE_PATHS = [
+    os.path.join(os.environ.get("LOCALAPPDATA", ""), "Microsoft", "WinGet", "Packages",
+                 "Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe",
+                 "ffmpeg-8.1.1-essentials_build", "bin"),
+    "C:\\ffmpeg\\bin",
+    "C:\\Program Files\\ffmpeg\\bin",
+]
+
+def _ensure_ffmpeg_on_path():
+    """Find ffmpeg.exe and prepend its directory to PATH if not already present."""
+    for candidate in FFMPEG_CANDIDATE_PATHS:
+        exe = os.path.join(candidate, "ffmpeg.exe")
+        if os.path.isfile(exe):
+            if candidate not in os.environ.get("PATH", ""):
+                os.environ["PATH"] = candidate + os.pathsep + os.environ.get("PATH", "")
+                logger.info("Found ffmpeg at %s and added to PATH.", exe)
+            return True
+    return False
 
 class TranscriptionError(Exception):
     pass
@@ -16,6 +36,11 @@ class LocalWhisperTranscriber(ISpeechTranscriber):
     def _lazy_init(self):
         if self._initialized:
             return
+        if not _ensure_ffmpeg_on_path():
+            raise TranscriptionError(
+                "ffmpeg not found on system. Whisper requires ffmpeg to decode audio. "
+                "Install it from https://ffmpeg.org/download.html or run: winget install FFmpeg"
+            )
         logger.info("Initializing local OpenAI Whisper model (%s)...", self.model_size)
         try:
             import whisper
@@ -43,10 +68,5 @@ class LocalWhisperTranscriber(ISpeechTranscriber):
             }
         except TranscriptionError:
             raise
-        except FileNotFoundError as e:
-            raise TranscriptionError(
-                "Whisper transcription failed because ffmpeg is not installed. "
-                "Install it from https://ffmpeg.org/download.html or run: winget install FFmpeg"
-            ) from e
         except Exception as e:
             raise TranscriptionError(f"Whisper transcription failed: {e}") from e
