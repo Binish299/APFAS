@@ -83,7 +83,7 @@ export const SessionHistory = () => {
       </div>
 
       {reportText && (
-        <div className="glass-panel" style={{ marginBottom: '30px', border: '1px solid rgba(139,92,246,0.25)', background: 'rgba(139,92,246,0.03)' }}>
+        <div className="glass-panel" style={{ marginBottom: '30px', border: '1px solid rgba(35,170,176,0.25)', background: 'rgba(35,170,176,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h3 style={{ fontSize: '1.1rem', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Sparkles size={18} style={{ color: 'var(--accent-purple)' }} /> Generated Performance Summary Sheet

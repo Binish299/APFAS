@@ -76,7 +76,7 @@ export const Dashboard = ({ navigateTo }) => {
             width: '50px', 
             height: '50px', 
             borderRadius: '12px', 
-            background: 'rgba(59,130,246,0.1)', 
+            background: 'rgba(35,170,176,0.1)', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
@@ -97,7 +97,7 @@ export const Dashboard = ({ navigateTo }) => {
             width: '50px', 
             height: '50px', 
             borderRadius: '12px', 
-            background: 'rgba(139,92,246,0.1)', 
+            background: 'rgba(35,170,176,0.1)', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
@@ -192,8 +192,8 @@ export const Dashboard = ({ navigateTo }) => {
 
           <div style={{ 
             marginTop: 'auto',
-            background: 'rgba(139,92,246,0.05)',
-            border: '1px solid rgba(139,92,246,0.1)',
+            background: 'rgba(35,170,176,0.05)',
+            border: '1px solid rgba(35,170,176,0.1)',
             padding: '12px 16px',
             borderRadius: '8px',
             fontSize: '0.85rem',

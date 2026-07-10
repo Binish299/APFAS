@@ -112,7 +112,7 @@ export const TopicSpeaking = ({ navigateTo }) => {
                   style={{
                     flex: 1,
                     fontSize: '0.85rem',
-                    background: durationLimit === dur.val ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.02)',
+                    background: durationLimit === dur.val ? 'rgba(35,170,176,0.1)' : 'rgba(255,255,255,0.02)',
                     border: durationLimit === dur.val ? '1px solid var(--accent-blue)' : '1px solid var(--glass-border)',
                     color: durationLimit === dur.val ? 'var(--accent-blue)' : 'var(--text-secondary)'
                   }}
@@ -210,7 +210,7 @@ export const TopicSpeaking = ({ navigateTo }) => {
                       <div 
                         key={idx}
                         style={{
-                          background: 'rgba(139,92,246,0.04)',
+                          background: 'rgba(35,170,176,0.04)',
                           borderLeft: '4px solid var(--accent-purple)',
                           padding: '14px 16px',
                           borderRadius: '0 8px 8px 0',

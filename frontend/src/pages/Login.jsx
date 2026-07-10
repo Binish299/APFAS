@@ -59,7 +59,7 @@ export const Login = ({ onLoginSuccess }) => {
             background: 'linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%)',
             color: 'white',
             marginBottom: '16px',
-            boxShadow: '0 8px 24px rgba(59,130,246,0.2)'
+            boxShadow: '0 8px 24px rgba(35,170,176,0.2)'
           }}>
             <Sparkles size={28} />
           </div>

@@ -86,7 +86,7 @@ export const TrainingSession = ({ navigateTo }) => {
                   style={{
                     padding: '16px',
                     border: selectedDrill.id === drill.id ? '1px solid var(--accent-blue)' : '1px solid var(--glass-border)',
-                    background: selectedDrill.id === drill.id ? 'rgba(59,130,246,0.06)' : 'var(--glass-bg)'
+                    background: selectedDrill.id === drill.id ? 'rgba(35,170,176,0.06)' : 'var(--glass-bg)'
                   }}
                 >
                   <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>
@@ -199,7 +199,7 @@ export const TrainingSession = ({ navigateTo }) => {
                       <div 
                         key={idx}
                         style={{
-                          background: 'rgba(139,92,246,0.04)',
+                          background: 'rgba(35,170,176,0.04)',
                           borderLeft: '4px solid var(--accent-purple)',
                           borderTop: '1px solid rgba(255,255,255,0.02)',
                           borderRight: '1px solid rgba(255,255,255,0.02)',
