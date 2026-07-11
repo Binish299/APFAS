@@ -53,20 +53,22 @@ export const Dashboard = ({ navigateTo }) => {
 
   return (
     <div style={{ padding: '30px 40px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
         <div>
-          <h1 className="gradient-title" style={{ fontSize: '2.25rem', marginBottom: '8px' }}>
+          <span className="eyebrow">Dashboard</span>
+          <h1 className="gradient-title" style={{ fontSize: '2.4rem', marginBottom: '10px' }}>
             Acoustic Speech Coaching
           </h1>
-          <p style={{ color: 'var(--text-secondary)' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '480px' }}>
             Real-time local assessment and L1 correction specifically designed for Nepali speakers.
           </p>
         </div>
         <button 
           onClick={() => navigateTo('drill')} 
           className="btn btn-primary"
+          style={{ marginTop: '6px' }}
         >
-          <Play size={18} fill="white" /> Start Practice Drill
+          <Play size={16} /> Start Practice Drill
         </button>
       </div>
 
