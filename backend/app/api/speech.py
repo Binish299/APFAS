@@ -16,7 +16,7 @@ from backend.app.domain.models import EvaluationResponse, MetricBreakdown, Feedb
 router = APIRouter(prefix="/speech", tags=["Speech Evaluation"])
 
 # Initialize processors
-transcriber = LocalWhisperTranscriber(model_size="tiny")
+transcriber = LocalWhisperTranscriber(model_size="small")
 acoustic_analyzer = LibrosaAcousticAnalyzer()
 accent_diagnostic = NepaliAccentDiagnostic()
 feedback_svc = FeedbackService()

@@ -223,7 +223,7 @@ export const TrainingSession = ({ navigateTo }) => {
                 lineHeight: 1.4
               }}>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 600 }}>Transcription Output:</p>
-                <p style={{ color: 'white', fontStyle: 'italic', fontFamily: 'var(--font-code)' }}>
+                <p style={{ color: 'var(--text-primary)', fontStyle: 'italic', fontFamily: 'var(--font-code)' }}>
                   "{result.recognized_text}"
                 </p>
               </div>
