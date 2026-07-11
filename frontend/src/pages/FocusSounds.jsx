@@ -89,35 +89,37 @@ export const FocusSounds = () => {
   const [errorMsg, setErrorMsg] = useState(null);
 
   const speak = useCallback((text, id) => {
-    if (!('speechSynthesis' in window)) {
-      setErrorMsg("Speech synthesis is not supported in this browser.");
-      return;
-    }
-
     if (speakingId === id) {
-      window.speechSynthesis.cancel();
+      if (window.currentAudio) {
+        window.currentAudio.pause();
+        window.currentAudio = null;
+      }
       setSpeakingId(null);
       return;
     }
 
-    window.speechSynthesis.cancel();
+    if (window.currentAudio) {
+      window.currentAudio.pause();
+      window.currentAudio = null;
+    }
     setErrorMsg(null);
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.7;
-    utterance.pitch = 1;
+    const audio = new Audio(`/api/conversation/tts?text=${encodeURIComponent(text)}&voice=en-US-JennyNeural`);
+    window.currentAudio = audio;
 
-    utterance.onstart = () => setSpeakingId(id);
-    utterance.onend = () => setSpeakingId(null);
-    utterance.onerror = (event) => {
+    audio.onplaying = () => setSpeakingId(id);
+    audio.onended = () => { setSpeakingId(null); window.currentAudio = null; };
+    audio.onerror = () => {
       setSpeakingId(null);
-      if (event.error !== 'canceled' && event.error !== 'interrupted') {
-        setErrorMsg("Failed to play audio. Try again.");
-      }
+      window.currentAudio = null;
+      setErrorMsg("Failed to play audio. Try again.");
     };
 
-    window.speechSynthesis.speak(utterance);
+    audio.play().catch(() => {
+      setSpeakingId(null);
+      window.currentAudio = null;
+      setErrorMsg("Failed to play audio. Try again.");
+    });
   }, [speakingId]);
 
   return (
@@ -202,10 +204,10 @@ export const FocusSounds = () => {
                     <span
                       key={w}
                       onClick={() => {
-                        window.speechSynthesis.cancel();
-                        const u = new SpeechSynthesisUtterance(w);
-                        u.lang = 'en-US'; u.rate = 0.6; u.pitch = 1;
-                        window.speechSynthesis.speak(u);
+                        if (window.currentAudio) window.currentAudio.pause();
+                        const a = new Audio(`/api/conversation/tts?text=${encodeURIComponent(w)}&voice=en-US-JennyNeural`);
+                        window.currentAudio = a;
+                        a.play().catch(() => {});
                       }}
                       style={{
                         fontSize: '0.78rem', padding: '4px 10px', borderRadius: '6px',
