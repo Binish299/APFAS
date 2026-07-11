@@ -2,29 +2,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600&display=swap');
 
 :root {
-  /* Color System */
-  --bg-primary: #012228;
-  --bg-secondary: #0B2D36;
-  --bg-tertiary: #0F444D;
+  /* Color System — Light Mode */
+  --bg-primary: #DAD8D1;
+  --bg-secondary: #C2C7BC;
+  --bg-tertiary: #e8e6e0;
   
   --accent-blue: #0F444D;
   --accent-purple: #0B2D36;
-  --accent-indigo: #082026;
+  --accent-indigo: #012228;
   
   /* Status Color Tokens */
-  --color-excellent: hsl(150, 80%, 45%);
-  --color-good: hsl(190, 80%, 45%);
-  --color-average: hsl(38, 90%, 55%);
-  --color-needs-improvement: hsl(355, 85%, 55%);
+  --color-excellent: hsl(150, 60%, 35%);
+  --color-good: hsl(190, 60%, 35%);
+  --color-average: hsl(38, 80%, 40%);
+  --color-needs-improvement: hsl(355, 75%, 45%);
   
-  --text-primary: #DAD8D1;
-  --text-secondary: #C2C7BC;
-  --text-muted: #8a8e87;
+  --text-primary: #012228;
+  --text-secondary: #0B2D36;
+  --text-muted: #6b7068;
   
   /* Glassmorphism settings */
-  --glass-bg: rgba(15, 68, 77, 0.45);
-  --glass-border: rgba(218, 216, 209, 0.07);
-  --glass-shadow: rgba(0, 0, 0, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: rgba(0, 0, 0, 0.08);
   
   --font-main: 'Outfit', sans-serif;
   --font-code: 'Space Grotesk', sans-serif;
@@ -47,8 +47,8 @@ body {
   overflow-x: hidden;
   line-height: 1.5;
   background-image: 
-    radial-gradient(circle at 10% 20%, rgba(15, 68, 77, 0.12) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(11, 45, 54, 0.1) 0%, transparent 45%);
+    radial-gradient(circle at 10% 20%, rgba(15, 68, 77, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(11, 45, 54, 0.03) 0%, transparent 45%);
   background-attachment: fixed;
 }
 
@@ -67,8 +67,8 @@ body {
 }
 
 .glass-panel:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.1);
 }
 
 .interactive-card {
@@ -88,7 +88,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: rgba(1, 34, 40, 0.95);
+  background: rgba(194, 199, 188, 0.6);
   border-right: 1px solid var(--glass-border);
   backdrop-filter: blur(12px);
   padding: 0;
@@ -184,13 +184,13 @@ body {
 
 .sidebar-item:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .sidebar-item.active {
   color: white;
-  background: rgba(15, 68, 77, 0.2);
-  box-shadow: inset 3px 0 0 var(--accent-blue);
+  background: var(--accent-blue);
+  box-shadow: inset 3px 0 0 var(--accent-indigo);
 }
 
 .sidebar-item svg {
@@ -274,7 +274,7 @@ h1, h2, h3, h4 {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.5);
   color: var(--text-primary);
   border: 1px solid var(--glass-border);
 }
@@ -306,7 +306,7 @@ h1, h2, h3, h4 {
   border-radius: 50%;
   margin: 0 auto 16px auto;
   background: radial-gradient(circle, var(--bg-tertiary) 60%, transparent 100%);
-  box-shadow: inset 0 0 15px rgba(255,255,255,0.02);
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.03);
 }
 
 .score-circle-svg {
@@ -320,7 +320,7 @@ h1, h2, h3, h4 {
 
 .circle-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.03);
+  stroke: rgba(0, 0, 0, 0.06);
   stroke-width: 10;
 }
 
@@ -334,7 +334,7 @@ h1, h2, h3, h4 {
 .circle-value {
   font-size: 2rem;
   font-weight: 700;
-  color: white;
+  color: var(--text-primary);
   font-family: var(--font-code);
 }
 
@@ -347,7 +347,7 @@ h1, h2, h3, h4 {
   align-items: center;
   justify-content: center;
   padding: 30px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-lg);
   border: 1px dashed var(--glass-border);
   margin: 20px 0;
@@ -432,11 +432,11 @@ h1, h2, h3, h4 {
 }
 
 .form-input {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 12px 16px;
-  color: white;
+  color: var(--text-primary);
   font-family: var(--font-main);
   font-size: 0.95rem;
   transition: var(--transition-smooth);
@@ -445,7 +445,7 @@ h1, h2, h3, h4 {
 .form-input:focus {
   outline: none;
   border-color: var(--accent-blue);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.85);
   box-shadow: 0 0 10px rgba(15, 68, 77, 0.15);
 }
 

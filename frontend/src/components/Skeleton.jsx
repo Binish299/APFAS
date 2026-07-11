@@ -8,7 +8,7 @@ const shimmer = `
 `;
 
 const skeletonStyle = {
-  background: 'linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 75%)',
+  background: 'linear-gradient(90deg, rgba(0,0,0,0.03) 25%, rgba(0,0,0,0.07) 50%, rgba(0,0,0,0.03) 75%)',
   backgroundSize: '800px 100%',
   animation: 'shimmer 1.5s ease-in-out infinite',
   borderRadius: '8px',
