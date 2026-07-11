@@ -11,4 +11,3 @@ This local workspace contains the codebase for the offline, voice-based speech c
 Please open this subdirectory (`C:\Users\admin\.gemini\antigravity\scratch\nepali-english-speech-trainer`) as your active workspace in your IDE to begin development.
 
 
-I'm Binish
