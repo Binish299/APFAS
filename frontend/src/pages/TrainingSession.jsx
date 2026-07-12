@@ -152,18 +152,17 @@ export const TrainingSession = ({ navigateTo }) => {
             </p>
 
             <div style={{
-              background: 'rgba(255,255,255,0.02)',
+              background: 'rgba(255,255,255,0.5)',
               border: '1px solid var(--glass-border)',
               padding: '24px',
               borderRadius: '12px',
               textAlign: 'center',
               fontSize: '1.25rem',
               fontWeight: 500,
-              color: 'white',
+              color: 'var(--text-primary)',
               lineHeight: 1.4,
               marginBottom: '24px',
-              fontFamily: 'var(--font-main)',
-              textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+              fontFamily: 'var(--font-display)'
             }}>
               "{selectedDrill.sentence}"
             </div>
