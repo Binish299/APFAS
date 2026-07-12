@@ -24,6 +24,46 @@ const DRILLS = [
     id: 4,
     sentence: "The school station was located in a very special city.",
     focus: "Syllables: Vowel epenthesis in 'school', 'station', 'special'"
+  },
+  {
+    id: 5,
+    sentence: "These thin threads will weather the winter storm.",
+    focus: "Dental fricatives: Voiced and unvoiced 'TH' in initial, medial, final positions"
+  },
+  {
+    id: 6,
+    sentence: "She sells sea shells by the sharp sea shore.",
+    focus: "Sibilants: Distinguishing 'SH' /ʃ/ from 'S' /s/"
+  },
+  {
+    id: 7,
+    sentence: "Every Friday we fry fresh fish for the family feast.",
+    focus: "Labiodentals: 'F' vs 'PH', and 'V' in medial position"
+  },
+  {
+    id: 8,
+    sentence: "He quickly slipped on the slick wet steps.",
+    focus: "Consonant clusters: 'SL', 'SP', 'CK' in word-final position"
+  },
+  {
+    id: 9,
+    sentence: "The brave prince pried the precious prize from the trap.",
+    focus: "Aspiration: Distinguishing aspirated 'P' from unaspirated 'P'"
+  },
+  {
+    id: 10,
+    sentence: "She measured the treasure with pleasure and precision.",
+    focus: "Palatal sounds: 'ZH' /ʒ/ in 'measure', 'treasure', 'pleasure'"
+  },
+  {
+    id: 11,
+    sentence: "Please bring the orange juice and ginger bread for the guests.",
+    focus: "Affricates: 'J' /dʒ/ vs 'G' /g/, vowel insertion after clusters"
+  },
+  {
+    id: 12,
+    sentence: "Through three thick books we thought we understood the truth.",
+    focus: "Comprehensive 'TH': Voiced and unvoiced across all word positions"
   }
 ];
 
