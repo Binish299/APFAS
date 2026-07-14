@@ -11,7 +11,7 @@ from sqlalchemy import text
 from backend.app.config import settings
 from backend.app.infrastructure.db_session import init_db, SessionLocal
 from backend.app.logging_config import setup_logging
-from backend.app.api import auth, speech, topics, analytics
+from backend.app.api import auth, speech, topics, analytics, conversation
 
 logger = logging.getLogger(__name__)
 
@@ -118,6 +118,7 @@ app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(speech.router, prefix=settings.API_V1_STR)
 app.include_router(topics.router, prefix=settings.API_V1_STR)
 app.include_router(analytics.router, prefix=settings.API_V1_STR)
+app.include_router(conversation.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def read_root():

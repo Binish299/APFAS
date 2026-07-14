@@ -4,10 +4,11 @@ import { TrainingSession } from './pages/TrainingSession';
 import { TopicSpeaking } from './pages/TopicSpeaking';
 import { SessionHistory } from './pages/SessionHistory';
 import { FocusSounds } from './pages/FocusSounds';
+import { LiveConversation } from './pages/LiveConversation';
 import { Login } from './pages/Login';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { OfflineBanner } from './components/OfflineBanner';
-import { Sparkles, LayoutDashboard, Volume2, HelpCircle, History, Ear, LogOut } from 'lucide-react';
+import { Sparkles, LayoutDashboard, Volume2, HelpCircle, History, Ear, MessageSquare, LogOut } from 'lucide-react';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -99,6 +100,15 @@ function App() {
             <Ear size={18} />
             <span>Focus Sounds</span>
           </button>
+
+          <button 
+            onClick={() => setCurrentPage('conversation')} 
+            className={`sidebar-item ${currentPage === 'conversation' ? 'active' : ''}`}
+            aria-current={currentPage === 'conversation' ? 'page' : undefined}
+          >
+            <MessageSquare size={18} />
+            <span>Live Conversation</span>
+          </button>
           
           <button 
             onClick={() => setCurrentPage('history')} 
@@ -133,6 +143,9 @@ function App() {
             )}
             {currentPage === 'focus' && (
               <FocusSounds />
+            )}
+            {currentPage === 'conversation' && (
+              <LiveConversation />
             )}
             {currentPage === 'history' && (
               <SessionHistory />
