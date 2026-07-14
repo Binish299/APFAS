@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from backend.app.api.dependencies import get_current_user
 from backend.app.infrastructure.db_session import get_db
-from backend.app.speech_processing.whisper_transcriber import LocalWhisperTranscriber
+from backend.app.speech_processing.whisper_transcriber import LocalWhisperTranscriber, TranscriptionError
 from backend.app.speech_processing.acoustic_features import LibrosaAcousticAnalyzer
 from backend.app.speech_processing.accent_diagnostics import NepaliAccentDiagnostic
 from backend.app.services.conversation_service import send_to_ollama, build_prompt, OllamaError
@@ -106,12 +106,15 @@ async def conversation_send(
             raise HTTPException(status_code=413, detail=f"Audio file too large ({file_size} bytes).")
 
         # Transcribe
-        transcription_result = await asyncio.wait_for(
-            asyncio.to_thread(transcriber.transcribe, audio_path, None),
-            timeout=300
-        )
-        recognized_text = transcription_result["text"]
-        if not recognized_text.strip():
+        try:
+            transcription_result = await asyncio.wait_for(
+                asyncio.to_thread(transcriber.transcribe, audio_path, None),
+                timeout=300
+            )
+            recognized_text = transcription_result["text"]
+            if not recognized_text.strip():
+                return ChatResponse(user_text="", assistant_text="I didn't catch that. Could you please speak again?")
+        except TranscriptionError:
             return ChatResponse(user_text="", assistant_text="I didn't catch that. Could you please speak again?")
 
         # Parse history
