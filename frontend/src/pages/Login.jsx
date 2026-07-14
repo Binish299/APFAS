@@ -77,7 +77,9 @@ function Stars({ isSignUp }) {
   );
 }
 
-export const Login = ({ onLoginSuccess }) => {
+import { ArrowLeft } from 'lucide-react';
+
+export const Login = ({ onLoginSuccess, onBack }) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [username, setUsername] = useState("");
@@ -136,6 +138,11 @@ export const Login = ({ onLoginSuccess }) => {
 
   return (
     <div className={`auth-container${isRegistering ? ' sign-up' : ''}`}>
+      {onBack && (
+        <button className="auth-back-btn" onClick={onBack} aria-label="Back to home">
+          <ArrowLeft size={18} />
+        </button>
+      )}
 
       {/* ── Form Panel ────────────────────────────────────── */}
       <div className="auth-form-panel">

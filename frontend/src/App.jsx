@@ -53,7 +53,7 @@ function App() {
             <Sparkles size={24} style={{ color: 'var(--accent-blue)' }} /> NEPALISH COACH
           </div>
         </nav>
-        <Login onLoginSuccess={handleLoginSuccess} />
+        <Login onLoginSuccess={handleLoginSuccess} onBack={() => setShowLanding(true)} />
       </div>
     );
   }

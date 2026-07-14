@@ -574,6 +574,32 @@ h3 { font-size: 1.15rem; }
   z-index: 100;
 }
 
+/* ── Back Button ───────────────────────────────────────────── */
+.auth-back-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 200;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
+}
+
+.auth-back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
 /* ── Form Panel ────────────────────────────────────────────── */
 .auth-form-panel {
   position: absolute;
@@ -614,11 +640,11 @@ h3 { font-size: 1.15rem; }
   max-width: 340px;
   padding: 32px 20px;
   position: relative;
-  left: clamp(-280px, -24vw, -180px);
+  left: clamp(-440px, -36vw, -280px);
 }
 
 .sign-up .auth-form-content {
-  left: clamp(180px, 24vw, 280px);
+  left: clamp(280px, 36vw, 440px);
 }
 
 .auth-overlay-content {
@@ -631,11 +657,11 @@ h3 { font-size: 1.15rem; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  left: clamp(180px, 24vw, 280px);
+  left: clamp(280px, 36vw, 440px);
 }
 
 .sign-up .auth-overlay-content {
-  left: clamp(-280px, -24vw, -180px);
+  left: clamp(-440px, -36vw, -280px);
 }
 
 /* ── Form Set Switching ────────────────────────────────────── */
