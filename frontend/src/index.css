@@ -825,6 +825,54 @@ h3 { font-size: 1.15rem; }
   cursor: not-allowed;
 }
 
+/* ── Terms Checkbox ────────────────────────────────────────── */
+.auth-terms-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  user-select: none;
+}
+
+.auth-terms-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.auth-terms-checkbox:checked {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  border-color: transparent;
+}
+
+.auth-terms-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 4.5px;
+  top: 1.5px;
+  width: 5px;
+  height: 9px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.auth-terms-checkbox:focus-visible {
+  outline: 2px solid rgba(139, 92, 246, 0.5);
+  outline-offset: 2px;
+}
+
 /* ── Overlay Text ──────────────────────────────────────────── */
 .auth-gradient-title {
   font-size: 1.5rem;

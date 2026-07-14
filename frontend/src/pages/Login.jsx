@@ -87,6 +87,7 @@ export const Login = ({ onLoginSuccess, onBack }) => {
   const [password, setPassword] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [showPw, setShowPw] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -132,6 +133,7 @@ export const Login = ({ onLoginSuccess, onBack }) => {
     setEmail("");
     setPassword("");
     setConfirmPw("");
+    setAgreeTerms(false);
     setIsRegistering((prev) => !prev);
     setTimeout(() => setAnimating(false), 950);
   };
@@ -214,7 +216,11 @@ export const Login = ({ onLoginSuccess, onBack }) => {
                   <input type={showPw ? 'text' : 'password'} required placeholder="Confirm Password" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} className="auth-input" />
                 </div>
               </div>
-              <button type="submit" disabled={loading} className="auth-submit-btn">
+              <label className="auth-terms-label">
+                <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} className="auth-terms-checkbox" />
+                <span>I agree to the Terms &amp; Conditions</span>
+              </label>
+              <button type="submit" disabled={loading || !agreeTerms} className="auth-submit-btn">
                 {loading ? 'Authenticating...' : 'Create account'}
               </button>
             </form>
