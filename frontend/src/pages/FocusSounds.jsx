@@ -110,9 +110,11 @@ export const FocusSounds = () => {
 
     utterance.onstart = () => setSpeakingId(id);
     utterance.onend = () => setSpeakingId(null);
-    utterance.onerror = () => {
+    utterance.onerror = (event) => {
       setSpeakingId(null);
-      setErrorMsg("Failed to play audio. Try again.");
+      if (event.error !== 'canceled' && event.error !== 'interrupted') {
+        setErrorMsg("Failed to play audio. Try again.");
+      }
     };
 
     window.speechSynthesis.speak(utterance);
