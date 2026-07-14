@@ -7,11 +7,13 @@ import { SessionHistory } from './pages/SessionHistory';
 import { FocusSounds } from './pages/FocusSounds';
 import { LiveConversation } from './pages/LiveConversation';
 import { Login } from './pages/Login';
+import { LandingPage } from './pages/LandingPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { OfflineBanner } from './components/OfflineBanner';
 import { Sparkles, LayoutDashboard, Volume2, HelpCircle, History, Ear, MessageSquare, LogOut } from 'lucide-react';
 
 function App() {
+  const [showLanding, setShowLanding] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('nepalish_user');
@@ -36,10 +38,14 @@ function App() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('nepalish_user');
+    setShowLanding(true);
     setCurrentPage('dashboard');
   };
 
   if (!user) {
+    if (showLanding) {
+      return <LandingPage onSignIn={() => setShowLanding(false)} />;
+    }
     return (
       <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
         <nav className="navbar">

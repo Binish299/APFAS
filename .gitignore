@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+*.egg
+.pytest_cache/
+*.db
+*.db-wal
+*.db-shm
+.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.codegraph/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Audio (generated recordings)
+backend/audio_store/*
+!backend/audio_store/.gitkeep
+
+# Docker
+.docker/

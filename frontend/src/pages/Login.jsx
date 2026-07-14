@@ -1,21 +1,105 @@
-import React, { useState } from 'react';
-import { User, Mail, Lock, AlertCircle, Sparkles } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { User, Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import api from '../api';
+
+function generateStars(count) {
+  const positions = [];
+  for (let i = 0; i < count; i++) {
+    positions.push({
+      x: 50 + Math.random() * 45,
+      y: 5 + Math.random() * 50,
+      size: Math.random() * 2.5 + 1,
+      opacity: Math.random() * 0.6 + 0.4,
+      delay: Math.random() * 4,
+      duration: Math.random() * 2 + 2,
+    });
+  }
+  return positions;
+}
+
+function Stars({ isSignUp }) {
+  const stars = useMemo(() => generateStars(60), []);
+
+  const lines = useMemo(() => {
+    const result = [];
+    for (let i = 1; i < stars.length; i++) {
+      const prev = stars[i - 1];
+      const s = stars[i];
+      const dx = s.x - prev.x;
+      const dy = s.y - prev.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len > 18) continue;
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      result.push({
+        prevX: prev.x,
+        prevY: prev.y,
+        width: len,
+        angle,
+        opacity: 0.15 + (1 - len / 18) * 0.35,
+        delay: s.delay,
+      });
+    }
+    return result;
+  }, [stars]);
+
+  return (
+    <div className="auth-stars-container" data-signup={isSignUp}>
+      {stars.map((s, i) => (
+        <div
+          key={i}
+          className="auth-star"
+          style={{
+            left: `${s.x}%`,
+            top: `${s.y}%`,
+            width: s.size,
+            height: s.size,
+            opacity: s.opacity,
+            animationDelay: `${s.delay}s`,
+            animationDuration: `${s.duration}s`,
+          }}
+        />
+      ))}
+      {lines.map((l, i) => (
+        <div
+          key={`l-${i}`}
+          className="auth-star-line"
+          style={{
+            left: `${l.prevX}%`,
+            top: `${l.prevY}%`,
+            width: `${l.width}%`,
+            transform: `rotate(${l.angle}deg)`,
+            opacity: l.opacity,
+            animationDelay: `${l.delay}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export const Login = ({ onLoginSuccess }) => {
   const [isRegistering, setIsRegistering] = useState(false);
+  const [animating, setAnimating] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [showPw, setShowPw] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg(null);
+
+    if (isRegistering && password !== confirmPw) {
+      setErrorMsg("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
 
-    const payload = isRegistering 
+    const payload = isRegistering
       ? { username, email, password }
       : { username, password };
 
@@ -23,7 +107,6 @@ export const Login = ({ onLoginSuccess }) => {
 
     try {
       const res = await api.post(`/auth/${endpoint}`, payload);
-      // Pass logged-in session data back to main App wrapper
       if (onLoginSuccess) {
         onLoginSuccess(res.data);
       }
@@ -39,133 +122,120 @@ export const Login = ({ onLoginSuccess }) => {
     }
   };
 
+  const toggleMode = () => {
+    if (animating) return;
+    setAnimating(true);
+    setErrorMsg(null);
+    setUsername("");
+    setEmail("");
+    setPassword("");
+    setConfirmPw("");
+    setIsRegistering((prev) => !prev);
+    setTimeout(() => setAnimating(false), 950);
+  };
+
   return (
-    <div style={{
-      minHeight: '80vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px'
-    }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '56px',
-            height: '56px',
-            borderRadius: '16px',
-            background: 'linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%)',
-            color: 'white',
-            marginBottom: '16px',
-            boxShadow: '0 8px 24px rgba(15,68,77,0.3)'
-          }}>
-            <Sparkles size={28} />
-          </div>
-          <h2 className="gradient-title" style={{ fontSize: '1.75rem', marginBottom: '8px' }}>
-            {isRegistering ? 'Start Speech Training' : 'Welcome Back'}
-          </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            {isRegistering ? 'Create your local speech coach profile' : 'Sign in to access your offline dashboard'}
-          </p>
-        </div>
+    <div className={`auth-container${isRegistering ? ' sign-up' : ''}`}>
 
-        {errorMsg && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(239,68,68,0.05)',
-            border: '1px solid rgba(239,68,68,0.15)',
-            color: 'var(--color-needs-improvement)',
-            padding: '12px 16px',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            fontSize: '0.85rem'
-          }}>
-            <AlertCircle size={18} />
-            <span>{errorMsg}</span>
-          </div>
-        )}
+      {/* ── Form Panel ────────────────────────────────────── */}
+      <div className="auth-form-panel">
+        <div className="auth-form-content">
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div className="form-group">
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <User size={14} /> Username
-            </label>
-            <input 
-              type="text" 
-              required
-              placeholder="e.g. nepalilearner"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="form-input" 
-            />
+          {/* Sign In Set */}
+          <div className={`auth-form-set${isRegistering ? '' : ' auth-set-active'}`}>
+            <span className="auth-eyebrow">WELCOME BACK</span>
+            <h2 className="auth-title">Sign in</h2>
+
+            {errorMsg && !isRegistering && (
+              <div className="auth-error">
+                <AlertCircle size={16} />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div className="auth-fields">
+                <div className="auth-input-wrap">
+                  <User size={16} className="auth-input-icon" />
+                  <input type="text" required placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} className="auth-input" />
+                </div>
+                <div className="auth-input-wrap">
+                  <Lock size={16} className="auth-input-icon" />
+                  <input type={showPw ? 'text' : 'password'} required placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="auth-input" />
+                  <button type="button" className="auth-pw-toggle" onClick={() => setShowPw(!showPw)} tabIndex={-1}>
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+              <button type="submit" disabled={loading} className="auth-submit-btn">
+                {loading ? 'Authenticating...' : 'Sign in'}
+              </button>
+            </form>
           </div>
 
-          {isRegistering && (
-            <div className="form-group">
-              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Mail size={14} /> Email Address
-              </label>
-              <input 
-                type="email" 
-                required
-                placeholder="learner@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="form-input" 
-              />
-            </div>
-          )}
+          {/* Sign Up Set */}
+          <div className={`auth-form-set${isRegistering ? ' auth-set-active' : ''}`}>
+            <span className="auth-eyebrow">JOIN THE SPACE</span>
+            <h2 className="auth-title">Create account</h2>
 
-          <div className="form-group">
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Lock size={14} /> Password
-            </label>
-            <input 
-              type="password" 
-              required
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="form-input" 
-            />
+            {errorMsg && isRegistering && (
+              <div className="auth-error">
+                <AlertCircle size={16} />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div className="auth-fields">
+                <div className="auth-input-wrap">
+                  <User size={16} className="auth-input-icon" />
+                  <input type="text" required placeholder="Full Name" value={username} onChange={(e) => setUsername(e.target.value)} className="auth-input" />
+                </div>
+                <div className="auth-input-wrap">
+                  <Mail size={16} className="auth-input-icon" />
+                  <input type="email" required placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className="auth-input" />
+                </div>
+                <div className="auth-input-wrap">
+                  <Lock size={16} className="auth-input-icon" />
+                  <input type={showPw ? 'text' : 'password'} required placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="auth-input" />
+                  <button type="button" className="auth-pw-toggle" onClick={() => setShowPw(!showPw)} tabIndex={-1}>
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <div className="auth-input-wrap">
+                  <Lock size={16} className="auth-input-icon" />
+                  <input type={showPw ? 'text' : 'password'} required placeholder="Confirm Password" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} className="auth-input" />
+                </div>
+              </div>
+              <button type="submit" disabled={loading} className="auth-submit-btn">
+                {loading ? 'Authenticating...' : 'Create account'}
+              </button>
+            </form>
           </div>
 
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="btn btn-primary"
-            style={{ width: '100%', padding: '12px', marginTop: '10px' }}
-          >
-            {loading ? 'Authenticating...' : isRegistering ? 'Sign Up' : 'Sign In'}
-          </button>
-        </form>
-
-        <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.88rem' }}>
-          <span style={{ color: 'var(--text-secondary)' }}>
-            {isRegistering ? 'Already registered?' : 'First time practicing?'}
-          </span>{' '}
-          <button
-            onClick={() => {
-              setIsRegistering(!isRegistering);
-              setErrorMsg(null);
-            }}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--accent-blue)',
-              fontWeight: 600,
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
-          >
-            {isRegistering ? 'Sign In here' : 'Sign Up here'}
-          </button>
         </div>
       </div>
+
+      {/* ── Overlay Panel ─────────────────────────────────── */}
+      <div className="auth-overlay-panel">
+        <Stars isSignUp={isRegistering} />
+        <div className="auth-overlay-content">
+          {isRegistering ? (
+            <div key="signup" className="auth-overlay-item auth-overlay-enter">
+              <h3 className="auth-gradient-title">Already have an account?</h3>
+              <p className="auth-gradient-desc">Sign in to continue your speech practice journey.</p>
+              <button className="auth-ghost-btn" onClick={toggleMode}>Sign in</button>
+            </div>
+          ) : (
+            <div key="signin" className="auth-overlay-item auth-overlay-enter">
+              <h3 className="auth-gradient-title">New to NepaliCoach?</h3>
+              <p className="auth-gradient-desc">Create a free account and start improving your English speaking skills today.</p>
+              <button className="auth-ghost-btn" onClick={toggleMode}>Create account</button>
+            </div>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 };
