@@ -7,6 +7,7 @@ export const LiveConversation = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [speakingMsgId, setSpeakingMsgId] = useState(null);
   const chatEndRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -57,20 +58,33 @@ export const LiveConversation = () => {
     }
   }, [isRecording]);
 
-  const speakText = useCallback((text) => {
+  const stopSpeaking = useCallback(() => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.9;
-      utterance.onerror = (e) => {
-        if (e.error !== 'canceled' && e.error !== 'interrupted') {
-          console.warn('TTS error:', e.error);
-        }
-      };
-      window.speechSynthesis.speak(utterance);
     }
+    setSpeakingMsgId(null);
   }, []);
+
+  const speakText = useCallback((msgId, text) => {
+    if (!('speechSynthesis' in window)) return;
+    if (speakingMsgId === msgId) {
+      stopSpeaking();
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    utterance.onend = () => setSpeakingMsgId(null);
+    utterance.onerror = (e) => {
+      if (e.error !== 'canceled' && e.error !== 'interrupted') {
+        console.warn('TTS error:', e.error);
+      }
+      setSpeakingMsgId(null);
+    };
+    setSpeakingMsgId(msgId);
+    window.speechSynthesis.speak(utterance);
+  }, [speakingMsgId, stopSpeaking]);
 
   const sendToConversation = async (audioBlob) => {
     setIsProcessing(true);
@@ -158,11 +172,11 @@ export const LiveConversation = () => {
               <p style={{ margin: 0 }}>{msg.text}</p>
               {msg.role === 'assistant' && (
                 <button
-                  onClick={() => speakText(msg.text)}
-                  title="Listen"
+                  onClick={() => speakText(msg.id, msg.text)}
+                  title={speakingMsgId === msg.id ? 'Stop' : 'Listen'}
                   style={{
                     marginTop: '8px',
-                    background: 'rgba(15,68,77,0.08)',
+                    background: speakingMsgId === msg.id ? 'rgba(194,77,77,0.1)' : 'rgba(15,68,77,0.08)',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '4px 10px',
@@ -171,10 +185,10 @@ export const LiveConversation = () => {
                     alignItems: 'center',
                     gap: '4px',
                     fontSize: '0.75rem',
-                    color: 'var(--accent-blue)',
+                    color: speakingMsgId === msg.id ? 'var(--color-needs-improvement)' : 'var(--accent-blue)',
                   }}
                 >
-                  <Volume2 size={14} /> Listen
+                  <Volume2 size={14} /> {speakingMsgId === msg.id ? 'Stop' : 'Listen'}
                 </button>
               )}
             </div>
