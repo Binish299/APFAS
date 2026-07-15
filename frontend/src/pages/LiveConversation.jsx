@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Volume2, Mic, Square, Sparkles, Loader2, RefreshCw } from 'lucide-react';
+import { Volume2, Mic, Square, Sparkles, Loader2, RefreshCw, ChevronDown } from 'lucide-react';
 import api from '../api';
 
 export const LiveConversation = () => {
@@ -8,10 +8,26 @@ export const LiveConversation = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [speakingMsgId, setSpeakingMsgId] = useState(null);
+  const [voices, setVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState('');
   const chatEndRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const streamRef = useRef(null);
+
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      const loadVoices = () => {
+        const v = window.speechSynthesis.getVoices().filter(x => x.lang.startsWith('en'));
+        setVoices(v);
+        if (!selectedVoice && v.length > 0) {
+          setSelectedVoice(v[0].name);
+        }
+      };
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -74,7 +90,11 @@ export const LiveConversation = () => {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US';
-    utterance.rate = 0.9;
+    utterance.rate = 0.85;
+    if (selectedVoice) {
+      const match = voices.find(v => v.name === selectedVoice);
+      if (match) utterance.voice = match;
+    }
     utterance.onend = () => setSpeakingMsgId(null);
     utterance.onerror = (e) => {
       if (e.error !== 'canceled' && e.error !== 'interrupted') {
@@ -84,7 +104,7 @@ export const LiveConversation = () => {
     };
     setSpeakingMsgId(msgId);
     window.speechSynthesis.speak(utterance);
-  }, [speakingMsgId, stopSpeaking]);
+  }, [speakingMsgId, stopSpeaking, selectedVoice, voices]);
 
   const sendToConversation = async (audioBlob) => {
     setIsProcessing(true);
@@ -122,7 +142,7 @@ export const LiveConversation = () => {
 
   return (
     <div style={{ padding: '30px 40px', maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px', flexShrink: 0, gap: '16px' }}>
         <div>
           <span className="eyebrow">Live Conversation</span>
           <h1 className="gradient-title" style={{ fontSize: '1.8rem' }}>
@@ -132,11 +152,35 @@ export const LiveConversation = () => {
             Speak naturally — the AI will correct your pronunciation in real-time, like a real conversation partner.
           </p>
         </div>
-        {messages.length > 0 && (
-          <button onClick={clearChat} className="btn btn-secondary" style={{ flexShrink: 0 }}>
-            <RefreshCw size={14} /> New Conversation
-          </button>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, paddingTop: '4px' }}>
+          {voices.length > 0 && (
+            <select
+              value={selectedVoice}
+              onChange={e => setSelectedVoice(e.target.value)}
+              style={{
+                background: 'var(--glass-bg)',
+                border: '1px solid var(--glass-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '6px 10px',
+                fontSize: '0.75rem',
+                color: 'var(--text-primary)',
+                fontFamily: 'var(--font-body)',
+                cursor: 'pointer',
+                maxWidth: '160px',
+              }}
+              title="TTS Voice"
+            >
+              {voices.map(v => (
+                <option key={v.name} value={v.name}>{v.name.replace(/[\s-].*/, '')}</option>
+              ))}
+            </select>
+          )}
+          {messages.length > 0 && (
+            <button onClick={clearChat} className="btn btn-secondary" style={{ padding: '6px 14px', fontSize: '0.78rem' }}>
+              <RefreshCw size={14} /> New
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Chat area */}
