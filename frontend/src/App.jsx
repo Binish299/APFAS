@@ -54,16 +54,6 @@ function App() {
           <span>NEPALISH COACH</span>
         </div>
 
-        <div className="sidebar-user">
-          <div className="sidebar-avatar">
-            {user.username.charAt(0).toUpperCase()}
-          </div>
-          <div className="sidebar-user-info">
-            <span className="sidebar-username">{user.username}</span>
-            <span className="sidebar-streak">🔥 3 Day Streak</span>
-          </div>
-        </div>
-
         <nav className="sidebar-nav" aria-label="Main navigation">
           <button 
             onClick={() => setCurrentPage('dashboard')} 
@@ -119,6 +109,16 @@ function App() {
             <span>Session History</span>
           </button>
         </nav>
+
+        <div className="sidebar-user">
+          <div className="sidebar-avatar">
+            {user.username.charAt(0).toUpperCase()}
+          </div>
+          <div className="sidebar-user-info">
+            <span className="sidebar-username">{user.username}</span>
+            <span className="sidebar-streak">🔥 3 Day Streak</span>
+          </div>
+        </div>
 
         <div className="sidebar-footer">
           <button onClick={handleLogout} className="sidebar-logout">
