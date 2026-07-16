@@ -10,19 +10,19 @@ import { Login } from './pages/Login';
 import { LandingPage } from './pages/LandingPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { OfflineBanner } from './components/OfflineBanner';
-import { Sparkles, LayoutDashboard, Volume2, HelpCircle, History, Ear, MessageSquare, LogOut } from 'lucide-react';
+import { LayoutDashboard, Volume2, HelpCircle, History, Ear, MessageSquare, LogOut } from 'lucide-react';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('nepalish_user');
+    const saved = localStorage.getItem('flowgo_user');
     return saved ? JSON.parse(saved) : null;
   });
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
-    localStorage.setItem('nepalish_user', JSON.stringify(userData));
+    localStorage.setItem('flowgo_user', JSON.stringify(userData));
     setCurrentPage('dashboard');
   };
 
@@ -37,7 +37,7 @@ function App() {
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem('nepalish_user');
+    localStorage.removeItem('flowgo_user');
     setShowLanding(true);
     setCurrentPage('dashboard');
   };
@@ -50,7 +50,7 @@ function App() {
       <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
         <nav className="navbar">
           <div className="brand">
-            <Sparkles size={24} style={{ color: 'var(--accent-blue)' }} /> NEPALISH COACH
+            <img src="/Flowgo logo.png" alt="FlowGo" className="nav-brand-logo" /> FLOWGO
           </div>
         </nav>
         <Login onLoginSuccess={handleLoginSuccess} onBack={() => setShowLanding(true)} />
@@ -66,8 +66,8 @@ function App() {
           className="sidebar-brand" 
           onClick={() => setCurrentPage('dashboard')}
         >
-          <Sparkles size={22} style={{ color: 'var(--accent-blue)' }} />
-          <span>NEPALISH COACH</span>
+          <img src="/Flowgo logo.png" alt="FlowGo" className="sidebar-brand-logo" />
+          <span>FLOWGO</span>
         </div>
 
         <nav className="sidebar-nav" aria-label="Main navigation">

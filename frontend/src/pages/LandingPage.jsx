@@ -29,8 +29,8 @@ export function LandingPage({ onSignIn }) {
     <div className="landing">
       <header className="landing-header">
         <div className="landing-brand">
-          <Sparkles size={20} style={{ color: 'var(--accent-blue)' }} />
-          <span>NEPALISH COACH</span>
+          <img src="/Flowgo logo.png" alt="FlowGo" className="landing-brand-logo" />
+          <span>FLOWGO</span>
         </div>
         <button className="btn btn-primary landing-signin" onClick={onSignIn}>
           Sign In <ArrowRight size={14} />
@@ -76,7 +76,7 @@ export function LandingPage({ onSignIn }) {
       </section>
 
       <footer className="landing-footer">
-        <span>NEPALISH COACH</span>
+        <span>FLOWGO</span>
         <span className="landing-footer-muted">© {new Date().getFullYear()} · All rights reserved</span>
       </footer>
     </div>

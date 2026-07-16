@@ -16,7 +16,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   try {
-    const raw = localStorage.getItem('nepalish_user');
+    const raw = localStorage.getItem('flowgo_user');
     if (raw) {
       const user = JSON.parse(raw);
       if (user.token) {
@@ -33,7 +33,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('nepalish_user');
+      localStorage.removeItem('flowgo_user');
       window.location.reload();
     }
     return Promise.reject(error);
