@@ -1,5 +1,7 @@
 import os
+import re
 import logging
+import numpy as np
 from typing import Dict, Any, Optional
 from backend.app.domain.interfaces import ISpeechTranscriber
 
@@ -13,6 +15,9 @@ FFMPEG_CANDIDATE_PATHS = [
     "C:\\Program Files\\ffmpeg\\bin",
 ]
 
+VAD_ENERGY_THRESHOLD = 0.005
+MAX_CHARS_PER_SECOND = 25
+
 def _ensure_ffmpeg_on_path():
     """Find ffmpeg.exe and prepend its directory to PATH if not already present."""
     for candidate in FFMPEG_CANDIDATE_PATHS:
@@ -23,6 +28,25 @@ def _ensure_ffmpeg_on_path():
                 logger.info("Found ffmpeg at %s and added to PATH.", exe)
             return True
     return False
+
+
+def estimate_audio_energy(audio_path: str) -> float:
+    try:
+        import librosa
+        y, _ = librosa.load(audio_path, sr=16000, mono=True)
+        if len(y) == 0:
+            return 0.0
+        rms = np.sqrt(np.mean(y ** 2))
+        return float(rms)
+    except Exception:
+        return 1.0
+
+
+def is_likely_gibberish(text: str) -> bool:
+    cleaned = re.sub(r'[a-zA-Z\s\.,!?\';:()-]', '', text)
+    non_eng_ratio = len(cleaned) / max(len(text), 1)
+    return non_eng_ratio > 0.3
+
 
 class TranscriptionError(Exception):
     pass
@@ -56,11 +80,32 @@ class LocalWhisperTranscriber(ISpeechTranscriber):
 
     def transcribe(self, audio_path: str, target_text: Optional[str] = None) -> Dict[str, Any]:
         self._lazy_init()
+
+        energy = estimate_audio_energy(audio_path)
+        if energy < VAD_ENERGY_THRESHOLD:
+            raise TranscriptionError("Audio energy too low — no speech detected.")
+
         try:
-            result = self.model.transcribe(audio_path, language="en", fp16=False)
+            result = self.model.transcribe(
+                audio_path,
+                language="en",
+                fp16=False,
+                no_speech_threshold=0.45,
+                logprob_threshold=-0.5,
+                compression_ratio_threshold=2.0,
+                condition_on_previous_text=False,
+            )
             text = result.get("text", "").strip()
             if not text:
                 raise TranscriptionError("Whisper returned empty transcription.")
+
+            duration = result.get("segments", [{}])[-1].get("end", 0) if result.get("segments") else 0
+            if duration > 0 and len(text) > duration * MAX_CHARS_PER_SECOND:
+                raise TranscriptionError("Transcription too long for audio duration — likely hallucination.")
+
+            if is_likely_gibberish(text):
+                raise TranscriptionError("Transcription contains excessive non-English content.")
+
             return {
                 "text": text,
                 "segments": result.get("segments", []),

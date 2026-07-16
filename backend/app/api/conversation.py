@@ -113,9 +113,12 @@ async def conversation_send(
             )
             recognized_text = transcription_result["text"]
             if not recognized_text.strip():
-                return ChatResponse(user_text="", assistant_text="I didn't catch that. Could you please speak again?")
+                return ChatResponse(user_text="", assistant_text="Sorry, I couldn't hear you clearly. Could you speak a bit louder or move closer to the microphone?")
         except TranscriptionError:
-            return ChatResponse(user_text="", assistant_text="I didn't catch that. Could you please speak again?")
+            return ChatResponse(
+                user_text="",
+                assistant_text="Sorry, I couldn't hear you clearly. Could you speak a bit louder or move closer to the microphone?"
+            )
 
         # Parse history
         import json
