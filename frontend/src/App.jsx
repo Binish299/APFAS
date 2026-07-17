@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from './api';
 import { Dashboard } from './pages/Dashboard';
 import { TrainingSession } from './pages/TrainingSession';
 import { TopicSpeaking } from './pages/TopicSpeaking';
@@ -22,6 +23,15 @@ function App() {
     localStorage.setItem('nepalish_user', JSON.stringify(userData));
     setCurrentPage('dashboard');
   };
+
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    api.get("/analytics/summary").then(res => {
+      setStreak(res.data.current_streak || 0);
+    }).catch(() => {});
+  }, [user]);
 
   const handleLogout = () => {
     setUser(null);
@@ -116,7 +126,7 @@ function App() {
           </div>
           <div className="sidebar-user-info">
             <span className="sidebar-username">{user.username}</span>
-            <span className="sidebar-streak">🔥 3 Day Streak</span>
+            <span className="sidebar-streak">🔥 {streak} Day Streak</span>
           </div>
         </div>
 

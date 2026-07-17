@@ -12,7 +12,8 @@ class PerformanceReportService:
                 "average_fluency": 0.0,
                 "average_pronunciation": 0.0,
                 "most_frequent_mistakes": [],
-                "progress_trends": []
+                "progress_trends": [],
+                "current_streak": 0
             }
 
         total_sessions = len(session_history)
@@ -63,14 +64,38 @@ class PerformanceReportService:
                 "frequency": count
             })
 
+        current_streak = self._calculate_streak(sorted_history)
+
         return {
             "total_sessions": total_sessions,
             "average_score": round(sum_overall / total_sessions, 1),
             "average_fluency": round(sum_fluency / total_sessions, 1),
             "average_pronunciation": round(sum_pron / total_sessions, 1),
             "most_frequent_mistakes": frequent_mistakes[:4], # Top 4 weaknesses
-            "progress_trends": progress_trends
+            "progress_trends": progress_trends,
+            "current_streak": current_streak
         }
+
+    def _calculate_streak(self, sorted_history: List[Dict[str, Any]]) -> int:
+        unique_dates = sorted(
+            {datetime.strptime(s["created_at"][:10], "%Y-%m-%d").date() for s in sorted_history},
+            reverse=True
+        )
+        if not unique_dates:
+            return 0
+
+        today = datetime.utcnow().date()
+        # Allow streak to start from today or yesterday
+        if unique_dates[0] != today and unique_dates[0] != today - timedelta(days=1):
+            return 0
+
+        streak = 1
+        for i in range(1, len(unique_dates)):
+            if (unique_dates[i - 1] - unique_dates[i]).days == 1:
+                streak += 1
+            else:
+                break
+        return streak
 
     def generate_markdown_report_file(self, user_name: str, summary: Dict[str, Any]) -> str:
         """Construct a beautiful, printable Markdown summary report saved locally."""
