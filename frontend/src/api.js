@@ -33,8 +33,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      const hadUser = localStorage.getItem('flowgo_user');
       localStorage.removeItem('flowgo_user');
-      window.location.reload();
+      if (hadUser) {
+        window.location.reload();
+      }
     }
     return Promise.reject(error);
   }
