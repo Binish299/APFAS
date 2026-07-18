@@ -2,9 +2,15 @@ import axios from 'axios';
 
 const DEV = import.meta.env.DEV;
 
-export const API_BASE = DEV
-  ? "http://localhost:8000/api"
-  : "/api";
+// In production (Vercel), VITE_API_URL points at the tunnel URL of the
+// locally-hosted backend (e.g. https://flowgo.ngrok-free.app).
+const REMOTE_API = import.meta.env.VITE_API_URL;
+
+export const API_BASE = REMOTE_API
+  ? `${REMOTE_API.replace(/\/$/, "")}/api`
+  : DEV
+    ? "http://localhost:8000/api"
+    : "/api";
 
 export function apiUrl(path) {
   return `${API_BASE}${path}`;
