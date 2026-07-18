@@ -10,11 +10,4 @@ class Settings:
     DATABASE_PATH: str = os.path.join(BASE_DIR, "database.db")
     AUDIO_STORE_PATH: str = os.path.join(BASE_DIR, "audio_store")
 
-    # CORS — origins allowed to call the API (comma-separated in env to override)
-    CORS_ORIGINS: list = [
-        o.strip() for o in os.getenv(
-            "CORS_ORIGINS", "http://localhost:3000,http://localhost:5173,http://localhost:8080"
-        ).split(",") if o.strip()
-    ]
-
 settings = Settings()

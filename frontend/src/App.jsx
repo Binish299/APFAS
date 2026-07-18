@@ -59,7 +59,7 @@ function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-primary)' }}>
+    <div className="app-authenticated" style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-primary)' }}>
       {/* Left Sidebar */}
       <aside className="sidebar">
         <div 

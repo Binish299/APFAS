@@ -528,6 +528,16 @@ h3 { font-size: 1.15rem; }
   color: var(--accent-blue);
 }
 
+/* ── Fade in on auth→dashboard transition ────────────────── */
+@keyframes app-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.app-authenticated {
+  animation: app-fade-in 0.3s ease-out;
+}
+
 /* ── Grid utilities ─────────────────────────────────────────── */
 .grid-cols-3 {
   display: grid;

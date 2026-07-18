@@ -13,36 +13,26 @@ class PerformanceReportService:
                 "average_pronunciation": 0.0,
                 "most_frequent_mistakes": [],
                 "progress_trends": [],
-                "current_streak": 0,
-                "total_speaking_minutes": 0,
-                "best_score": 0.0,
-                "latest_score": 0.0,
-                "trend_delta": 0.0,
-                "rating_label": "No Data",
-                "top_mistake": None,
+                "current_streak": 0
             }
 
         total_sessions = len(session_history)
         sum_overall = 0.0
         sum_fluency = 0.0
         sum_pron = 0.0
-        total_duration_seconds = 0
-
+        
         # Track counts of accent issue matches
         mistake_counts = {}
-
+        
         # Sort history by date to find trends
         sorted_history = sorted(session_history, key=lambda x: x["created_at"])
         progress_trends = []
-        overall_scores = []
 
         for session in sorted_history:
             metrics = session["metrics"]
             sum_overall += metrics["overall_score"]
             sum_fluency += metrics["fluency"]
             sum_pron += metrics["pronunciation"]
-            total_duration_seconds += session.get("duration_seconds", 0) or 0
-            overall_scores.append(metrics["overall_score"])
 
             # Count mistake frequencies
             for fb in session.get("feedback", []):
